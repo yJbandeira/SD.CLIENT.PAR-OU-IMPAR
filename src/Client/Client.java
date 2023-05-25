@@ -160,7 +160,7 @@ public class Client {
                     saidaTipoJogo = true;
                 }
                 
-                System.out.println("\nDeseja continuar? Digite 0 para sim e 1 para não!");
+                System.out.println("\nDeseja continuar? Caso, não digite 1 para sair");
                 Scanner saidaScanner = new Scanner(System.in);
                 int saida = saidaScanner.nextInt();
 
