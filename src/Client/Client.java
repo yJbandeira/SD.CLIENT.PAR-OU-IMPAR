@@ -17,6 +17,10 @@ public class Client {
         final int PORT2 = 12346;
         Socket socket;
         Socket socket2;
+        int contadorVitoriaPC = 0;
+        int contadorDerrotaPC = 0;
+        int contadorVitoriaPvP = 0;
+        int contadorDerrotaPvP = 0;
 
         boolean jogoFinalizado = false;
 
@@ -106,6 +110,8 @@ public class Client {
 
                 RequestModel request = new RequestModel(numeroEscolhido, escolha);
 
+                
+
                 if (tipoJogo == 1) {
                     socket = new Socket(HOST, PORT);
                     ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
@@ -117,11 +123,15 @@ public class Client {
 
                     if (response.getVitoria()) {
                         System.out.printf("Parabéns, você venceu!!, a maquina ficou com: %s e escolheu o numero: %s ", response.getParImpar(), response.getNumero());
+                        contadorVitoriaPC++;
                     } else {
                         System.out.printf("Ops, você perdeu, a maquina ficou com: %s e escolheu o numero: %s ",
                                 response.getParImpar(), response.getNumero());
+                        contadorDerrotaPC++;
                     }
                     
+                    System.out.println("\nVocê tem " + contadorVitoriaPC + " vitória(s) e " + contadorDerrotaPC + 
+                                                " derrota(s) contra máquina!");
                     saidaTipoJogo = true;
 
                 } else {   
@@ -137,11 +147,16 @@ public class Client {
                         System.out.printf("%s, seu adversario ficou com: %s, e escolheu o numero: %s",
                                 response.getMensagem(), response.getParImparAdversario(),
                                 response.getNumeroAdversario());
+                                contadorVitoriaPvP++;
                     } else {
                         System.out.printf("%s, seu adversario ficou com: %s, e escolheu o numero: %s",
                                 response.getMensagem(), response.getParImparAdversario(),
                                 response.getNumeroAdversario());
+                                contadorDerrotaPvP++;
                     }
+
+                    System.out.println("\nVocê tem " + contadorVitoriaPvP + " vitória(s) e " + contadorDerrotaPvP + " derrota(s) PvP!");
+
                     saidaTipoJogo = true;
                 }
                 
