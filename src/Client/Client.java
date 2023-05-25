@@ -5,9 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-import Logic.ParOuImparLogic;
 import Util.Enum.EParOuImpar;
-import Util.Enum.EStatus;
 import Util.Model.RequestModel;
 import Util.Model.ResponseModel;
 import Util.Model.ResponsePvPModel;
@@ -19,6 +17,10 @@ public class Client {
         final int PORT2 = 12346;
         Socket socket;
         Socket socket2;
+        int contadorVitoriaPC = 0;
+        int contadorDerrotaPC = 0;
+        int contadorVitoriaPvP = 0;
+        int contadorDerrotaPvP = 0;
 
         boolean jogoFinalizado = false;
 
@@ -28,10 +30,10 @@ public class Client {
         Scanner hostScanner = new Scanner(System.in);
         HOST = hostScanner.nextLine();
 
-        while (!jogoFinalizado) {
-            try {
-                socket = new Socket(HOST, PORT);
-                socket2 = new Socket(HOST, PORT2);
+        try{           
+            while (!jogoFinalizado) {  
+                
+                
                 System.out.println("\n\nConectado ao servidor");
 
                 System.out.println("\n\n--------------------------------");
@@ -41,73 +43,77 @@ public class Client {
                 System.out.println("--------------------------------");
                 System.out.println("    Escolha a opção de jogo     ");
 
-                ParOuImparLogic _parOuImparLogic = new ParOuImparLogic();
-
                 boolean saidaTipoJogo = false;
                 Scanner tipoJogoScanner = new Scanner(System.in);
-                int tipoJogo = 0;
+                int tipoJogo = tipoJogoScanner.nextInt();
 
                 while (!saidaTipoJogo) {
-
-                    tipoJogo = tipoJogoScanner.nextInt();
-
-                    if (tipoJogo == 1) {
-                        System.out.println("Legal, você vai jogar contra a CPU.");
-                        saidaTipoJogo = true;
-                    } else if (tipoJogo == 2) {
-                        System.out.println("Legal, você vai jogar contra outro Jogador.");
-                        saidaTipoJogo = true;
+                    if(!escolhendoTipoJogo(tipoJogo)){
+                        saidaTipoJogo = false;
+                        tipoJogo = tipoJogoScanner.nextInt();
                     } else {
-                        System.out.println("Sua opção não é valida, escolha novamente.");
+                        saidaTipoJogo = true;
+                    }
+                }
+                                   
+                System.out.println("\n--------------------------------");
+                System.out.println("-------- Par ou Impar ? --------");
+                System.out.println("--- Impar ------------- Par ----");
+                System.out.println("-    1     ------        2     -");
+                System.out.println("--------------------------------");
+
+                boolean saidaParImpar = false;
+                Scanner parImparScanner = new Scanner(System.in);
+                int parImpar = 0;
+                EParOuImpar escolha = null;
+
+                while (!saidaParImpar) {
+
+                    parImpar = parImparScanner.nextInt();
+
+                    switch (parImpar) {
+                        case 1:
+                            System.out.printf("Boa você é: Ímpar");
+                            escolha = escolha.IMPAR;
+                            saidaParImpar = true;
+                            break;
+                        case 2:
+                            System.out.printf("Boa você é: Par");
+                            escolha = escolha.PAR;
+                            saidaParImpar = true;
+                            break;
+                        default:
+                            System.out.println("Opção inválida, escolha novamente!");
+                            saidaParImpar = false;
+                            break;
                     }
                 }
 
+                System.out.println("\n--------------------------------");
+                System.out.println("Agora escolha um numero de 0 a 5, \npara realizar seu jogo.");
+
+                boolean saidaNumero = false;
+                Scanner numeroEscolhidoScanner = new Scanner(System.in);
+                int numeroEscolhido = 0;
+
+                while (!saidaNumero) {
+
+                    numeroEscolhido = numeroEscolhidoScanner.nextInt();
+
+                    if (numeroEscolhido <= 5 && numeroEscolhido >= 0) {
+                        System.out.println("Só aguardar o resultado.");
+                        saidaNumero = true;
+                    } else {
+                        System.out.println("Escolha um numero entre 0 e 5.");
+                    }
+                }
+
+                RequestModel request = new RequestModel(numeroEscolhido, escolha);
+
+                
+
                 if (tipoJogo == 1) {
-                    System.out.println("\n--------------------------------");
-                    System.out.println("-------- Par ou Impar ? --------");
-                    System.out.println("--- Impar ------------- Par ----");
-                    System.out.println("-    1     ------        2     -");
-                    System.out.println("--------------------------------");
-
-                    boolean saidaParImpar = false;
-                    Scanner parImparScanner = new Scanner(System.in);
-                    int parImpar = 0;
-                    EParOuImpar escolha = null;
-
-                    while (!saidaParImpar) {
-
-                        parImpar = parImparScanner.nextInt();
-
-                        if (parImpar == 1 || parImpar == 2) {
-                            System.out.printf("Boa você é: %s", parImpar == 2 ? "Par" : "Impar");
-                            escolha = parImpar == 2 ? EParOuImpar.PAR : EParOuImpar.IMPAR;
-                            saidaParImpar = true;
-                        } else {
-                            System.out.println("Opção inválida, escolha novamente!");
-                        }
-                    }
-
-                    System.out.println("\n--------------------------------");
-                    System.out.println("Agora escolha um numero de 0 a 5, \npara realizar seu jogo.");
-
-                    boolean saidaNumero = false;
-                    Scanner numeroEscolhidoScanner = new Scanner(System.in);
-                    int numeroEscolhido = 0;
-
-                    while (!saidaNumero) {
-
-                        numeroEscolhido = numeroEscolhidoScanner.nextInt();
-
-                        if (numeroEscolhido <= 5 && numeroEscolhido >= 0) {
-                            System.out.println("Só aguardar o resultado.");
-                            saidaNumero = true;
-                        } else {
-                            System.out.println("Escolha um numero entre 0 e 5.");
-                        }
-                    }
-
-                    RequestModel request = new RequestModel(numeroEscolhido, escolha);
-
+                    socket = new Socket(HOST, PORT);
                     ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                     ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
@@ -116,62 +122,22 @@ public class Client {
                     ResponseModel response = (ResponseModel) input.readObject();
 
                     if (response.getVitoria()) {
-                        System.out.printf("Parabéns, você venceu!!, a maquina ficou com: %s e escolheu o numero: %s",
-                                response.getParImpar(), response.getNumero());
+                        System.out.printf("Parabéns, você venceu!!, a maquina ficou com: %s e escolheu o numero: %s ", response.getParImpar(), response.getNumero());
+                        contadorVitoriaPC++;
                     } else {
-                        System.out.printf("Ops, você perdeu, a maquina ficou com: %s e escolheu o numero: %s",
+                        System.out.printf("Ops, você perdeu, a maquina ficou com: %s e escolheu o numero: %s ",
                                 response.getParImpar(), response.getNumero());
+                        contadorDerrotaPC++;
                     }
+                    
+                    System.out.println("\nVocê tem " + contadorVitoriaPC + " vitória(s) e " + contadorDerrotaPC + 
+                                                " derrota(s) contra máquina!");
+                    saidaTipoJogo = true;
 
-                } else {
-
-                    System.out.println("\n--------------------------------");
-                    System.out.println("-------- Par ou Impar ? --------");
-                    System.out.println("--- Impar ------------- Par ----");
-                    System.out.println("-    1     ------        2     -");
-                    System.out.println("--------------------------------");
-
-                    boolean saidaParImpar = false;
-                    Scanner parImparScanner = new Scanner(System.in);
-                    int parImpar = 0;
-                    EParOuImpar escolha = null;
-
-                    while (!saidaParImpar) {
-
-                        parImpar = parImparScanner.nextInt();
-
-                        if (parImpar == 1 || parImpar == 2) {
-                            System.out.printf("Boa você é: %s", parImpar == 2 ? "Par" : "Impar");
-                            escolha = parImpar == 2 ? EParOuImpar.PAR : EParOuImpar.IMPAR;
-                            saidaParImpar = true;
-                        } else {
-                            System.out.println("Opção inválida, escolha novamente!");
-                        }
-                    }
-
-                    System.out.println("\n--------------------------------");
-                    System.out.println("Agora escolha um numero de 0 a 5, \npara realizar seu jogo.");
-
-                    boolean saidaNumero = false;
-                    Scanner numeroEscolhidoScanner = new Scanner(System.in);
-                    int numeroEscolhido = 0;
-
-                    while (!saidaNumero) {
-
-                        numeroEscolhido = numeroEscolhidoScanner.nextInt();
-
-                        if (numeroEscolhido <= 5 && numeroEscolhido >= 0) {
-                            System.out.println("Só aguardar o resultado.");
-                            saidaNumero = true;
-                        } else {
-                            System.out.println("Escolha um numero entre 0 e 5.");
-                        }
-                    }
-
+                } else {   
+                    socket2 = new Socket(HOST, PORT2);                        
                     ObjectOutputStream output = new ObjectOutputStream(socket2.getOutputStream());
                     ObjectInputStream input = new ObjectInputStream(socket2.getInputStream());
-
-                    RequestModel request = new RequestModel(numeroEscolhido, escolha);
 
                     output.writeObject(request);
 
@@ -181,17 +147,55 @@ public class Client {
                         System.out.printf("%s, seu adversario ficou com: %s, e escolheu o numero: %s",
                                 response.getMensagem(), response.getParImparAdversario(),
                                 response.getNumeroAdversario());
+                                contadorVitoriaPvP++;
                     } else {
                         System.out.printf("%s, seu adversario ficou com: %s, e escolheu o numero: %s",
                                 response.getMensagem(), response.getParImparAdversario(),
                                 response.getNumeroAdversario());
+                                contadorDerrotaPvP++;
                     }
 
-                }
+                    System.out.println("\nVocê tem " + contadorVitoriaPvP + " vitória(s) e " + contadorDerrotaPvP + " derrota(s) PvP!");
 
-            } catch (Exception e) {
-                System.out.println("Erro" + e.getMessage());
-            }
+                    saidaTipoJogo = true;
+                }
+                
+                System.out.println("\nDeseja continuar? Digite 0 para sim e 1 para não!");
+                Scanner saidaScanner = new Scanner(System.in);
+                int saida = saidaScanner.nextInt();
+
+                if(saida == 1) {
+                    System.out.println("Finalizando o jogo!");
+
+                    tipoJogoScanner.close();
+                    parImparScanner.close();
+                    numeroEscolhidoScanner.close();
+                    saidaScanner.close();
+
+                    jogoFinalizado = true;
+                }
+            }            
+    
+        } catch (Exception ex) {
+            System.out.println("Erro: " + ex.getMessage());;
+        }
+        
+        hostScanner.close();
+    }
+
+    public static boolean escolhendoTipoJogo(int tipoJogo) {
+        switch (tipoJogo) {
+            case 1:
+                System.out.println("Legal, você vai jogar contra a CPU.");
+                return true;
+            case 2:
+                System.out.println("Legal, você vai jogar contra outro Jogador.");
+                return true;
+            default:
+                System.out.println("Opção inválida");
+                System.out.println("Digite novamente:");
+                return false;
         }
     }
+
 }

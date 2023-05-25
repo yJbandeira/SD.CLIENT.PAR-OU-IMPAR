@@ -2,7 +2,6 @@ package Util.Model;
 
 import java.io.Serializable;
 
-import Util.Enum.EParOuImpar;
 
 public class ResponseModel implements Serializable {
     private int numero;
